@@ -14,10 +14,17 @@ $client = new Client(array(
 $url = 'https://www.guiamais.com.br/encontre?what=&where=S%C3%A3o%20Jos%C3%A9%20do%20Rio%20Pardo,%20SP&order=alpha&page=1';
 
 $html = $client->request('GET', $url)->getBody();
-
-$dom = HtmlDomParser::str_get_html($html);
+$dom  = HtmlDomParser::str_get_html($html);
 
 foreach ($dom->find('meta[itemprop=url]') as $key => $link){
-    echo $link->content;
-    echo "<br>";
+    $urlEmpresa = $link->content;
+    $html       = $client->request('GET', $urlEmpresa)->getBody();
+    $domEmpresa = HTMLDomParser::str_get_html($html);
+    
+    $basicsInfo   = $domEmpresa->find('div.basicsInfo',0);
+    $extendedInfo = $domEmpresa->find('div.extendedInfo',0);
+    
+    $titulo    = $basicsInfo->find('h1',0)->plaintext;
+    $categoria = htmlentities(trim($basicsInfo->find('p.category',0)->plaintext));
+    echo "titulo: ".$titulo." ---------------> categoria: ".$categoria."<br>";
 }
